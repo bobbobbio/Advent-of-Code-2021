@@ -1,11 +1,11 @@
 [workspace]
 members = [
-    "one",
-    "two",
-    "three",
-    "four",
-    "advent",
-    "advent_macro",
-    "parse",
-    "parse_macro",
+    'advent',
+    'advent_macro',
+    'four',
+    'one',
+    'parse',
+    'parse_macro',
+    'three',
+    'two',
 ]

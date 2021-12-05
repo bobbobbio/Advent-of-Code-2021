@@ -9,10 +9,8 @@ enum Direction {
 }
 
 impl Direction {
-    fn parser<Input>() -> impl Parser<Input, Output = Self>
-    where
-        Input: Stream<Token = char>,
-    {
+    #[into_parser]
+    fn parser() -> _ {
         let dir = string("forward").or(string("up")).or(string("down"));
         let num = many1(digit()).map(|n: String| n.parse::<u32>().unwrap());
         (dir, spaces(), num).map(|(d, _, n)| match d {

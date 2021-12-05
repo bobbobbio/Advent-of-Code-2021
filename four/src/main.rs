@@ -5,10 +5,8 @@ use std::io;
 pub struct NumberList(Vec<u32>);
 
 impl NumberList {
-    fn parser<Input>() -> impl Parser<Input, Output = Self>
-    where
-        Input: Stream<Token = char>,
-    {
+    #[into_parser]
+    fn parser() -> _ {
         sep_by1(u32_parser(), token(',')).map(Self)
     }
 }
@@ -87,10 +85,8 @@ impl BingoBoard {
 }
 
 impl BingoBoard {
-    fn parser<Input>() -> impl Parser<Input, Output = Self>
-    where
-        Input: Stream<Token = char>,
-    {
+    #[into_parser]
+    fn parser() -> _ {
         let spaces = many::<String, _, _>(token(' '));
         let spaces1 = many1::<String, _, _>(token(' '));
         let one_line = sep_by1(spaces.with(u32_parser()), spaces1).skip(newline());
@@ -105,10 +101,8 @@ struct BingoGame {
 }
 
 impl BingoGame {
-    fn parser<Input>() -> impl Parser<Input, Output = Self>
-    where
-        Input: Stream<Token = char>,
-    {
+    #[into_parser]
+    fn parser() -> _ {
         let input = NumberList::parser().skip(newline());
         let boards = sep_by1(BingoBoard::parser(), newline());
         (input.skip(newline()), boards).map(|(input, boards)| Self { input, boards })

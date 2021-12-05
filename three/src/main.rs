@@ -7,10 +7,8 @@ const NUM_BITS: usize = 12;
 struct Number([u8; NUM_BITS]);
 
 impl Number {
-    fn parser<Input>() -> impl Parser<Input, Output = Self>
-    where
-        Input: Stream<Token = char>,
-    {
+    #[into_parser]
+    fn parser() -> _ {
         let one_or_zero = char('1')
             .or(char('0'))
             .map(|c| if c == '1' { 1 } else { 0 });

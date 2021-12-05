@@ -7,6 +7,7 @@ pub mod prelude {
     pub use combine::parser::char::*;
     pub use combine::*;
     pub use combine::{Parser, Stream};
+    pub use parse_macro::into_parser;
     pub use std::str::FromStr;
 }
 

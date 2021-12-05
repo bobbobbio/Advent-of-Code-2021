@@ -19,14 +19,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "four"
-version = "0.1.0"
-dependencies = [
- "combine",
- "parse",
-]
-
-[[package]]
 name = "memchr"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -44,20 +36,4 @@ name = "parse"
 version = "0.1.0"
 dependencies = [
  "combine",
-]
-
-[[package]]
-name = "three"
-version = "0.1.0"
-dependencies = [
- "combine",
- "parse",
-]
-
-[[package]]
-name = "two"
-version = "0.1.0"
-dependencies = [
- "combine",
- "parse",
 ]

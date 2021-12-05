@@ -1,12 +1,13 @@
 use combine::stream::{easy, position};
+use prelude::*;
 use std::io::{self, BufRead};
 use std::num;
-use std::str::FromStr;
 
 pub mod prelude {
     pub use combine::parser::char::*;
     pub use combine::*;
     pub use combine::{Parser, Stream};
+    pub use std::str::FromStr;
 }
 
 #[derive(Debug)]
@@ -60,4 +61,20 @@ where
         values.push(maybe_line?.parse()?);
     }
     Ok(values)
+}
+
+pub fn parse_from_reader<T: FromStr>(mut reader: impl io::Read) -> Result<T>
+where
+    Error: From<<T as FromStr>::Err>,
+{
+    let mut s = String::new();
+    reader.read_to_string(&mut s)?;
+    Ok(s.parse()?)
+}
+
+pub fn u32_parser<Input>() -> impl Parser<Input, Output = u32>
+where
+    Input: Stream<Token = char>,
+{
+    many1(digit()).map(|s: String| s.parse::<u32>().unwrap())
 }

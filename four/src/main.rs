@@ -1,5 +1,4 @@
-use parse::{prelude::*, *};
-use std::io;
+use advent::prelude::*;
 
 #[derive(Clone, Debug)]
 pub struct NumberList(Vec<u32>);
@@ -111,20 +110,21 @@ impl BingoGame {
 
 parser_from_str!(BingoGame);
 
-fn part_one(mut b: BingoGame) {
+#[part_one]
+fn part_one(mut b: BingoGame) -> u32 {
     for &value in &b.input.0 {
         for board in &mut b.boards {
             board.mark_value(value);
             if board.has_won() {
-                println!("{}", board.score() * value);
-                return;
+                return board.score() * value;
             }
         }
     }
     panic!("No winner");
 }
 
-fn part_two(mut b: BingoGame) {
+#[part_two]
+fn part_two(mut b: BingoGame) -> u32 {
     let mut unwon_boards = b.boards.len();
     for &value in &b.input.0 {
         for board in &mut b.boards {
@@ -136,8 +136,7 @@ fn part_two(mut b: BingoGame) {
             if board.has_won() {
                 unwon_boards -= 1;
                 if unwon_boards == 0 {
-                    println!("{}", board.score() * value);
-                    return;
+                    return board.score() * value;
                 }
             }
         }
@@ -145,14 +144,4 @@ fn part_two(mut b: BingoGame) {
     panic!("Unwinable board");
 }
 
-fn main() -> Result<()> {
-    let b: BingoGame = parse_from_reader(io::stdin().lock())?;
-
-    println!("Part 1");
-    part_one(b.clone());
-
-    println!("Part 2");
-    part_two(b);
-
-    Ok(())
-}
+harness!();

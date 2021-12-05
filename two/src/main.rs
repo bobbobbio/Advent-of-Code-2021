@@ -1,5 +1,4 @@
-use parse::{parse_lines, parser_from_str, prelude::*, Result};
-use std::io;
+use advent::prelude::*;
 
 #[derive(Debug, Clone, Copy)]
 enum Direction {
@@ -24,7 +23,8 @@ impl Direction {
 
 parser_from_str!(Direction);
 
-fn part_one(directions: &[Direction]) {
+#[part_one]
+fn part_one(directions: Vec<Direction>) -> u32 {
     let mut pos = 0;
     let mut depth = 0;
     for d in directions {
@@ -34,10 +34,11 @@ fn part_one(directions: &[Direction]) {
             Direction::Down(n) => depth += n,
         }
     }
-    println!("{}", pos * depth);
+    pos * depth
 }
 
-fn part_two(directions: &[Direction]) {
+#[part_two]
+fn part_two(directions: Vec<Direction>) -> u32 {
     let mut pos = 0;
     let mut depth = 0;
     let mut aim = 0;
@@ -52,17 +53,7 @@ fn part_two(directions: &[Direction]) {
             Direction::Down(n) => aim += n,
         }
     }
-    println!("{}", pos * depth);
+    pos * depth
 }
 
-fn main() -> Result<()> {
-    let directions: Vec<Direction> = parse_lines(io::stdin().lock())?;
-
-    println!("Part 1");
-    part_one(&directions);
-
-    println!("Part 2");
-    part_two(&directions);
-
-    Ok(())
-}
+harness!();

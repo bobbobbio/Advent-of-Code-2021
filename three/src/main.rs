@@ -1,5 +1,4 @@
-use parse::{parse_lines, parser_from_str, prelude::*, Result};
-use std::io;
+use advent::prelude::*;
 
 const NUM_BITS: usize = 12;
 
@@ -48,15 +47,16 @@ fn calculate_gamma(numbers: &[Number]) -> Number {
     gamma
 }
 
-fn part_one(numbers: &[Number]) {
-    let gamma = calculate_gamma(numbers);
+#[part_one]
+fn part_one(numbers: Vec<Number>) -> u32 {
+    let gamma = calculate_gamma(&numbers);
     let epsilon = gamma.to_flipped();
 
     let gamma = gamma.to_decimal();
     let epsilon = epsilon.to_decimal();
 
     let power = gamma * epsilon;
-    println!("{}", power);
+    power
 }
 
 fn filter_numbers(numbers: &[Number], most_common: bool) -> u32 {
@@ -78,20 +78,11 @@ fn filter_numbers(numbers: &[Number], most_common: bool) -> u32 {
     candidates[0].to_decimal()
 }
 
-fn part_two(numbers: &[Number]) {
-    let oxygen_gen_rating = filter_numbers(numbers, true);
-    let co2_scrubber_rating = filter_numbers(numbers, false);
-    println!("{}", oxygen_gen_rating * co2_scrubber_rating);
+#[part_two]
+fn part_two(numbers: Vec<Number>) -> u32 {
+    let oxygen_gen_rating = filter_numbers(&numbers, true);
+    let co2_scrubber_rating = filter_numbers(&numbers, false);
+    oxygen_gen_rating * co2_scrubber_rating
 }
 
-fn main() -> Result<()> {
-    let numbers: Vec<Number> = parse_lines(io::stdin().lock())?;
-
-    println!("Part 1");
-    part_one(&numbers);
-
-    println!("Part 2");
-    part_two(&numbers);
-
-    Ok(())
-}
+harness!();

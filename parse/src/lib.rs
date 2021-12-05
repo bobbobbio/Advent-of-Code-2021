@@ -4,6 +4,7 @@ use std::io::{self, BufRead};
 use std::num;
 
 pub mod prelude {
+    pub use super::*;
     pub use combine::parser::char::*;
     pub use combine::*;
     pub use combine::{Parser, Stream};

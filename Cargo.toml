@@ -4,6 +4,8 @@ members = [
     "two",
     "three",
     "four",
+    "advent",
+    "advent_macro",
     "parse",
     "parse_macro",
 ]

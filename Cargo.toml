@@ -2,6 +2,7 @@
 members = [
     'advent',
     'advent_macro',
+    'five',
     'four',
     'one',
     'parse',

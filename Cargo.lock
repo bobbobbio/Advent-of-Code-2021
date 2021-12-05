@@ -102,13 +102,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "test"
-version = "0.1.0"
-dependencies = [
- "advent",
-]
-
-[[package]]
 name = "three"
 version = "0.1.0"
 dependencies = [

@@ -48,7 +48,7 @@ fn calculate_gamma(numbers: &[Number]) -> Number {
 }
 
 #[part_one]
-fn part_one(numbers: Vec<Number>) -> u32 {
+fn part_one(numbers: List<Number>) -> u32 {
     let gamma = calculate_gamma(&numbers);
     let epsilon = gamma.to_flipped();
 
@@ -79,7 +79,7 @@ fn filter_numbers(numbers: &[Number], most_common: bool) -> u32 {
 }
 
 #[part_two]
-fn part_two(numbers: Vec<Number>) -> u32 {
+fn part_two(numbers: List<Number>) -> u32 {
     let oxygen_gen_rating = filter_numbers(&numbers, true);
     let co2_scrubber_rating = filter_numbers(&numbers, false);
     oxygen_gen_rating * co2_scrubber_rating

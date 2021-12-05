@@ -24,7 +24,7 @@ impl Direction {
 parser_from_str!(Direction);
 
 #[part_one]
-fn part_one(directions: Vec<Direction>) -> u32 {
+fn part_one(directions: List<Direction>) -> u32 {
     let mut pos = 0;
     let mut depth = 0;
     for d in directions {
@@ -38,7 +38,7 @@ fn part_one(directions: Vec<Direction>) -> u32 {
 }
 
 #[part_two]
-fn part_two(directions: Vec<Direction>) -> u32 {
+fn part_two(directions: List<Direction>) -> u32 {
     let mut pos = 0;
     let mut depth = 0;
     let mut aim = 0;

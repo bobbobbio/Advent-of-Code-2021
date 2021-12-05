@@ -36,11 +36,12 @@ fn verify_signature(sig: &Signature) -> Result<()> {
 fn into_parser_inner(input: TokenStream) -> Result<ItemFn> {
     let input: ItemFn = parse(input)?;
     verify_signature(&input.sig)?;
+    let vis = &input.vis;
 
     let name = input.sig.ident;
     let block = input.block;
     Ok(parse_quote! {
-        fn #name<Input>() -> impl ::combine::Parser<Input, Output = Self>
+        #vis fn #name<Input>() -> impl ::combine::Parser<Input, Output = Self>
         where
             Input: ::combine::Stream<Token = char>,
         #block

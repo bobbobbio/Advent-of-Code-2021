@@ -1,16 +1,6 @@
 use advent::prelude::*;
 
 #[derive(Clone, Debug)]
-pub struct NumberList(Vec<u32>);
-
-impl NumberList {
-    #[into_parser]
-    fn parser() -> _ {
-        sep_by1(u32_parser(), token(',')).map(Self)
-    }
-}
-
-#[derive(Clone, Debug)]
 struct BingoCell {
     value: u32,
     marked: bool,
@@ -95,14 +85,14 @@ impl BingoBoard {
 
 #[derive(Clone, Debug)]
 struct BingoGame {
-    input: NumberList,
+    input: List<u32>,
     boards: Vec<BingoBoard>,
 }
 
 impl BingoGame {
     #[into_parser]
     fn parser() -> _ {
-        let input = NumberList::parser().skip(newline());
+        let input = List::<u32>::parser().skip(newline());
         let boards = sep_by1(BingoBoard::parser(), newline());
         (input.skip(newline()), boards).map(|(input, boards)| Self { input, boards })
     }
@@ -112,7 +102,7 @@ parser_from_str!(BingoGame);
 
 #[part_one]
 fn part_one(mut b: BingoGame) -> u32 {
-    for &value in &b.input.0 {
+    for &value in &b.input {
         for board in &mut b.boards {
             board.mark_value(value);
             if board.has_won() {
@@ -126,7 +116,7 @@ fn part_one(mut b: BingoGame) -> u32 {
 #[part_two]
 fn part_two(mut b: BingoGame) -> u32 {
     let mut unwon_boards = b.boards.len();
-    for &value in &b.input.0 {
+    for &value in &b.input {
         for board in &mut b.boards {
             if board.has_won() {
                 continue;

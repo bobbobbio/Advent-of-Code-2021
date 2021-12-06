@@ -61,10 +61,23 @@ impl From<easy::Errors<char, &str, position::SourcePosition>> for Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-impl HasParser for u32 {
+macro_rules! number_parser {
+    ($($id:ty),*) => {
+        $(impl HasParser for $id {
+            #[into_parser]
+            fn parser() -> _ {
+                many1(digit()).map(|s: String| s.parse::<Self>().unwrap())
+            }
+        })*
+    }
+}
+
+number_parser!(u8, u16, u32, u64, u128, usize);
+
+impl HasParser for String {
     #[into_parser]
     fn parser() -> _ {
-        many1(digit()).map(|s: String| s.parse::<Self>().unwrap())
+        many1(any())
     }
 }
 
@@ -116,6 +129,10 @@ impl<T, Sep> List<T, Sep> {
 
     pub fn truncate(&mut self, size: usize) {
         self.0.truncate(size);
+    }
+
+    pub fn reserve(&mut self, additional: usize) {
+        self.0.reserve(additional)
     }
 }
 

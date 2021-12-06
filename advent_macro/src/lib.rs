@@ -27,6 +27,7 @@ fn part_inner(input: TokenStream, part_number: usize) -> Result<File> {
         #func
         fn #tramp(input: &str) -> ::advent::parse::Result<()> {
             let (p, _): (#parsed_type, _) = <#parsed_type>::parser()
+                .skip(spaces())
                 .skip(::advent::combine::eof())
                 .easy_parse(::advent::combine::stream::position::Stream::new(input))?;
 

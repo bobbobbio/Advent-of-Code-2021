@@ -1,3 +1,6 @@
+#![feature(generic_associated_types)]
+#![feature(type_alias_impl_trait)]
+
 use advent::prelude::*;
 
 #[derive(Clone, Debug)]
@@ -73,32 +76,30 @@ impl BingoBoard {
     }
 }
 
-impl BingoBoard {
+impl HasParser for BingoBoard {
     #[into_parser]
     fn parser() -> _ {
         let spaces = many::<String, _, _>(token(' '));
         let spaces1 = many1::<String, _, _>(token(' '));
-        let one_line = sep_by1(spaces.with(u32_parser()), spaces1).skip(newline());
+        let one_line = sep_by1(spaces.with(u32::parser()), spaces1).skip(newline());
         many1(one_line).map(Self::new)
     }
 }
 
 #[derive(Clone, Debug)]
 struct BingoGame {
-    input: List<u32>,
+    input: List<u32, Comma>,
     boards: Vec<BingoBoard>,
 }
 
-impl BingoGame {
+impl HasParser for BingoGame {
     #[into_parser]
     fn parser() -> _ {
-        let input = List::<u32>::parser().skip(newline());
+        let input = List::<u32, Comma>::parser().skip(newline());
         let boards = sep_by1(BingoBoard::parser(), newline());
         (input.skip(newline()), boards).map(|(input, boards)| Self { input, boards })
     }
 }
-
-parser_from_str!(BingoGame);
 
 #[part_one]
 fn part_one(mut b: BingoGame) -> u32 {

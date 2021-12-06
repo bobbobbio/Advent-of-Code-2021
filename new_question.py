@@ -18,9 +18,13 @@ edition = "2021"
 
 [dependencies]
 advent = { path = "../advent" }
+combine = "*"
 '''
 
 MAIN_RS = '''\
+#![feature(type_alias_impl_trait)]
+#![feature(generic_associated_types)]
+
 use advent::prelude::*;
 
 #[part_one]

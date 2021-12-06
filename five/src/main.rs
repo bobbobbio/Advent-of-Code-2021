@@ -1,3 +1,6 @@
+#![feature(generic_associated_types)]
+#![feature(type_alias_impl_trait)]
+
 use advent::prelude::*;
 use std::collections::HashMap;
 
@@ -7,10 +10,10 @@ struct Position {
     y: i32,
 }
 
-impl Position {
+impl HasParser for Position {
     #[into_parser]
     fn parser() -> _ {
-        (u32_parser().skip(char(',')), u32_parser()).map(|(x, y)| Self {
+        (u32::parser().skip(char(',')), u32::parser()).map(|(x, y)| Self {
             x: x as i32,
             y: y as i32,
         })
@@ -36,13 +39,15 @@ struct Line {
     end: Position,
 }
 
-impl Line {
+impl HasParser for Line {
     #[into_parser]
     fn parser() -> _ {
         (Position::parser().skip(string(" -> ")), Position::parser())
             .map(|(start, end)| Self { start, end })
     }
+}
 
+impl Line {
     fn is_horizontal_or_vertical(&self) -> bool {
         self.start.x == self.end.x || self.start.y == self.end.y
     }
@@ -95,10 +100,8 @@ impl Board {
     }
 }
 
-parser_from_str!(Line);
-
 #[part_one]
-fn part_one(lines: List<Line>) -> usize {
+fn part_one(lines: List<Line, NewLine>) -> usize {
     part_two(
         lines
             .into_iter()
@@ -108,7 +111,7 @@ fn part_one(lines: List<Line>) -> usize {
 }
 
 #[part_two]
-fn part_two(lines: List<Line>) -> usize {
+fn part_two(lines: List<Line, NewLine>) -> usize {
     let mut board = Board::default();
     for line in lines.iter() {
         for pos in line.positions() {

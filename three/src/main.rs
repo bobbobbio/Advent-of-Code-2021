@@ -1,3 +1,6 @@
+#![feature(generic_associated_types)]
+#![feature(type_alias_impl_trait)]
+
 use advent::prelude::*;
 
 const NUM_BITS: usize = 12;
@@ -5,7 +8,7 @@ const NUM_BITS: usize = 12;
 #[derive(Default, Debug, Clone, Copy)]
 struct Number([u8; NUM_BITS]);
 
-impl Number {
+impl HasParser for Number {
     #[into_parser]
     fn parser() -> _ {
         let one_or_zero = char('1')
@@ -15,8 +18,6 @@ impl Number {
         num.map(|n: Vec<u8>| Self(n.try_into().unwrap()))
     }
 }
-
-parser_from_str!(Number);
 
 impl Number {
     fn to_decimal(&self) -> u32 {
@@ -48,7 +49,7 @@ fn calculate_gamma(numbers: &[Number]) -> Number {
 }
 
 #[part_one]
-fn part_one(numbers: List<Number>) -> u32 {
+fn part_one(numbers: List<Number, NewLine>) -> u32 {
     let gamma = calculate_gamma(&numbers);
     let epsilon = gamma.to_flipped();
 
@@ -79,7 +80,7 @@ fn filter_numbers(numbers: &[Number], most_common: bool) -> u32 {
 }
 
 #[part_two]
-fn part_two(numbers: List<Number>) -> u32 {
+fn part_two(numbers: List<Number, NewLine>) -> u32 {
     let oxygen_gen_rating = filter_numbers(&numbers, true);
     let co2_scrubber_rating = filter_numbers(&numbers, false);
     oxygen_gen_rating * co2_scrubber_rating

@@ -26,7 +26,10 @@ fn part_inner(input: TokenStream, part_number: usize) -> Result<File> {
     Ok(parse_quote! {
         #func
         fn #tramp(input: &str) -> ::advent::parse::Result<()> {
-            let p: #parsed_type = ::std::str::FromStr::from_str(input)?;
+            let (p, _): (#parsed_type, _) = <#parsed_type>::parser()
+                .skip(::advent::combine::eof())
+                .easy_parse(::advent::combine::stream::position::Stream::new(input))?;
+
             let result = #func_name(p);
             println!("Part {}: {}", #part_number, result);
             Ok(())

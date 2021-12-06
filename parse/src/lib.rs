@@ -1,10 +1,14 @@
+#![feature(generic_associated_types)]
+#![feature(type_alias_impl_trait)]
+
 use combine::stream::{easy, position};
 use prelude::*;
 use std::convert::Infallible;
+use std::marker::PhantomData;
 use std::{
     io, iter, num,
     ops::{Deref, DerefMut},
-    result, slice, str, vec,
+    slice, str, vec,
 };
 
 pub mod prelude {
@@ -14,6 +18,14 @@ pub mod prelude {
     pub use combine::{Parser, Stream};
     pub use parse_macro::into_parser;
     pub use std::str::FromStr;
+}
+
+pub trait HasParser {
+    type Parser<Input: combine::Stream<Token = char>>: Parser<Input, Output = Self>;
+
+    fn parser<Input>() -> Self::Parser<Input>
+    where
+        Input: combine::Stream<Token = char>;
 }
 
 #[derive(Debug)]
@@ -49,39 +61,51 @@ impl From<easy::Errors<char, &str, position::SourcePosition>> for Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[macro_export]
-macro_rules! parser_from_str {
-    ($s:ident) => {
-        impl ::std::str::FromStr for $s {
-            type Err = $crate::Error;
-            fn from_str(input: &str) -> $crate::Result<Self> {
-                let (p, _): (Self, _) = Self::parser()
-                    .skip(::combine::eof())
-                    .easy_parse(::combine::stream::position::Stream::new(input))?;
-                Ok(p)
-            }
-        }
-    };
-}
-
-pub fn u32_parser<Input>() -> impl Parser<Input, Output = u32>
-where
-    Input: Stream<Token = char>,
-{
-    many1(digit()).map(|s: String| s.parse::<u32>().unwrap())
-}
-
-#[derive(Clone, Debug)]
-pub struct List<T>(Vec<T>);
-
-impl List<u32> {
+impl HasParser for u32 {
     #[into_parser]
-    pub fn parser() -> _ {
-        sep_by1(u32_parser(), token(',')).map(Self)
+    fn parser() -> _ {
+        many1(digit()).map(|s: String| s.parse::<Self>().unwrap())
     }
 }
 
-impl<T> List<T> {
+#[derive(Debug, Clone, Copy)]
+pub struct Comma;
+
+#[derive(Debug, Clone, Copy)]
+pub struct NewLine;
+
+#[derive(Clone, Debug)]
+pub struct List<T, Sep>(Vec<T>, PhantomData<Sep>);
+
+impl<T, Sep> From<Vec<T>> for List<T, Sep> {
+    fn from(v: Vec<T>) -> Self {
+        Self(v, PhantomData)
+    }
+}
+
+impl<T: HasParser> HasParser for List<T, Comma> {
+    #[into_parser]
+    fn parser() -> _ {
+        sep_by1(T::parser(), token(',')).map(|v: Vec<_>| v.into())
+    }
+}
+
+impl<T: HasParser> HasParser for List<T, NewLine> {
+    #[into_parser]
+    fn parser() -> _ {
+        many1(T::parser().skip(token('\n'))).map(|v: Vec<_>| v.into())
+    }
+}
+
+impl<T, Sep> List<T, Sep> {
+    pub fn new() -> Self {
+        Self(vec![], PhantomData)
+    }
+
+    pub fn push(&mut self, t: T) {
+        self.0.push(t);
+    }
+
     pub fn iter<'a>(&'a self) -> slice::Iter<'a, T> {
         self.0.iter()
     }
@@ -89,9 +113,13 @@ impl<T> List<T> {
     pub fn iter_mut<'a>(&'a mut self) -> slice::IterMut<'a, T> {
         self.0.iter_mut()
     }
+
+    pub fn truncate(&mut self, size: usize) {
+        self.0.truncate(size);
+    }
 }
 
-impl<'a, T> IntoIterator for &'a List<T> {
+impl<'a, T, Sep> IntoIterator for &'a List<T, Sep> {
     type Item = &'a T;
     type IntoIter = slice::Iter<'a, T>;
 
@@ -100,7 +128,7 @@ impl<'a, T> IntoIterator for &'a List<T> {
     }
 }
 
-impl<'a, T> IntoIterator for &'a mut List<T> {
+impl<'a, T, Sep> IntoIterator for &'a mut List<T, Sep> {
     type Item = &'a mut T;
     type IntoIter = slice::IterMut<'a, T>;
 
@@ -109,7 +137,7 @@ impl<'a, T> IntoIterator for &'a mut List<T> {
     }
 }
 
-impl<T> IntoIterator for List<T> {
+impl<T, Sep> IntoIterator for List<T, Sep> {
     type Item = T;
     type IntoIter = vec::IntoIter<T>;
 
@@ -118,40 +146,25 @@ impl<T> IntoIterator for List<T> {
     }
 }
 
-impl<T> str::FromStr for List<T>
-where
-    T: str::FromStr,
-{
-    type Err = <T as str::FromStr>::Err;
-
-    fn from_str(lines: &str) -> result::Result<Self, Self::Err> {
-        let mut values = vec![];
-        for line in lines.lines() {
-            values.push(line.parse()?);
-        }
-        Ok(Self(values))
-    }
-}
-
-impl<T> iter::FromIterator<T> for List<T> {
+impl<T, Sep> iter::FromIterator<T> for List<T, Sep> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        Self(iter::FromIterator::from_iter(iter))
+        Self(iter::FromIterator::from_iter(iter), PhantomData)
     }
 }
 
-impl<T> AsRef<[T]> for List<T> {
+impl<T, Sep> AsRef<[T]> for List<T, Sep> {
     fn as_ref(&self) -> &[T] {
         self.0.as_ref()
     }
 }
 
-impl<T> AsMut<[T]> for List<T> {
+impl<T, Sep> AsMut<[T]> for List<T, Sep> {
     fn as_mut(&mut self) -> &mut [T] {
         self.0.as_mut()
     }
 }
 
-impl<T> Deref for List<T> {
+impl<T, Sep> Deref for List<T, Sep> {
     type Target = [T];
 
     fn deref(&self) -> &[T] {
@@ -159,7 +172,7 @@ impl<T> Deref for List<T> {
     }
 }
 
-impl<T> DerefMut for List<T> {
+impl<T, Sep> DerefMut for List<T, Sep> {
     fn deref_mut(&mut self) -> &mut [T] {
         self.0.deref_mut()
     }

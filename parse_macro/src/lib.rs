@@ -33,25 +33,26 @@ fn verify_signature(sig: &Signature) -> Result<()> {
     }
 }
 
-fn into_parser_inner(input: TokenStream) -> Result<ItemFn> {
+fn into_parser_inner(input: TokenStream) -> Result<TokenStream> {
     let input: ItemFn = parse(input)?;
     verify_signature(&input.sig)?;
-    let vis = &input.vis;
 
     let name = input.sig.ident;
     let block = input.block;
-    Ok(parse_quote! {
-        #vis fn #name<Input>() -> impl ::combine::Parser<Input, Output = Self>
+    Ok(quote! {
+        type Parser<Input: combine::Stream<Token = char>> = impl Parser<Input, Output = Self>;
+
+        fn #name<Input>() -> Self::Parser<Input>
         where
             Input: ::combine::Stream<Token = char>,
         #block
-    })
+    }.into())
 }
 
 #[proc_macro_attribute]
 pub fn into_parser(_attr: TokenStream, input: TokenStream) -> TokenStream {
     match into_parser_inner(input) {
-        Ok(v) => quote!(#v).into(),
+        Ok(v) => v,
         Err(e) => e.into_compile_error().into(),
     }
 }

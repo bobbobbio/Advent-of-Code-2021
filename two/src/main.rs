@@ -1,3 +1,6 @@
+#![feature(generic_associated_types)]
+#![feature(type_alias_impl_trait)]
+
 use advent::prelude::*;
 
 #[derive(Debug, Clone, Copy)]
@@ -7,7 +10,7 @@ enum Direction {
     Down(u32),
 }
 
-impl Direction {
+impl HasParser for Direction {
     #[into_parser]
     fn parser() -> _ {
         let dir = string("forward").or(string("up")).or(string("down"));
@@ -21,10 +24,8 @@ impl Direction {
     }
 }
 
-parser_from_str!(Direction);
-
 #[part_one]
-fn part_one(directions: List<Direction>) -> u32 {
+fn part_one(directions: List<Direction, NewLine>) -> u32 {
     let mut pos = 0;
     let mut depth = 0;
     for d in directions {
@@ -38,7 +39,7 @@ fn part_one(directions: List<Direction>) -> u32 {
 }
 
 #[part_two]
-fn part_two(directions: List<Direction>) -> u32 {
+fn part_two(directions: List<Direction, NewLine>) -> u32 {
     let mut pos = 0;
     let mut depth = 0;
     let mut aim = 0;

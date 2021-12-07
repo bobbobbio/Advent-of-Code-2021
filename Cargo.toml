@@ -1,8 +1,8 @@
 [profile.release]
 opt-level = 3
 debug = true
-lto = "thin"
-panic = "abort"
+lto = 'thin'
+panic = 'abort'
 
 [workspace]
 members = [
@@ -13,6 +13,7 @@ members = [
     'one',
     'parse',
     'parse_macro',
+    'seven',
     'six',
     'three',
     'two',

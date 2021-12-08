@@ -9,3 +9,4 @@ edition = "2021"
 advent = { path = "../advent" }
 combine = "*"
 enum-iterator = "*"
+enumset = "*"

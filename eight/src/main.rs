@@ -3,9 +3,10 @@
 
 use advent::prelude::*;
 use enum_iterator::IntoEnumIterator;
-use std::collections::{HashMap, HashSet};
+use enumset::{EnumSet, EnumSetType};
+use std::collections::HashMap;
 
-#[derive(IntoEnumIterator, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(EnumSetType, IntoEnumIterator, Debug, Hash)]
 #[repr(usize)]
 enum CodedSegment {
     A = 0,
@@ -33,7 +34,7 @@ impl HasParser for CodedSegment {
 }
 
 #[derive(Debug)]
-struct Digit(HashSet<CodedSegment>);
+struct Digit(EnumSet<CodedSegment>);
 
 impl HasParser for Digit {
     #[into_parser]
@@ -70,7 +71,7 @@ fn part_one(inputs: List<Input, NewLine>) -> u32 {
     total
 }
 
-#[derive(IntoEnumIterator, Debug, Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(EnumSetType, IntoEnumIterator, Debug, Hash, PartialOrd, Ord)]
 enum Segment {
     Bottom,
     LowerLeft,
@@ -100,13 +101,13 @@ const ALL_DIGITS: [&'static [Segment]; 10] = [
     &ZERO, &ONE, &TWO, &THREE, &FOUR, &FIVE, &SIX, &SEVEN, &EIGHT, &NINE,
 ];
 
-fn number_for_segments(segments: &HashSet<Segment>) -> Option<u32> {
-    let mut seg: Vec<Segment> = segments.iter().cloned().collect();
+fn number_for_segments(segments: &EnumSet<Segment>) -> Option<u32> {
+    let mut seg: Vec<Segment> = segments.iter().collect();
     seg.sort();
     ALL_DIGITS.iter().position(|s| s == &seg).map(|v| v as u32)
 }
 
-fn segments_for_number(n: u32) -> HashSet<Segment> {
+fn segments_for_number(n: u32) -> EnumSet<Segment> {
     ALL_DIGITS[n as usize].iter().cloned().collect()
 }
 
@@ -117,12 +118,10 @@ impl Key {
     fn complete(&self) -> bool {
         self.0.len() == 7
     }
-}
 
-impl Key {
     fn try_decode(&self, d: &Digit) -> Option<u32> {
-        let mut m = HashSet::new();
-        for c in &d.0 {
+        let mut m = EnumSet::new();
+        for c in d.0.iter() {
             if let Some(v) = self.0.get(&c) {
                 m.insert(*v);
             } else {
@@ -141,25 +140,25 @@ fn numbers_with_len(len: usize) -> Vec<u32> {
         .collect()
 }
 
-fn possible_segments_for_input(c: CodedSegment, input: &[Digit]) -> HashSet<Segment> {
-    let mut segments: HashSet<_> = EIGHT.iter().cloned().collect();
+fn possible_segments_for_input(c: CodedSegment, input: &[Digit]) -> EnumSet<Segment> {
+    let mut segments: EnumSet<_> = EIGHT.iter().cloned().collect();
     for d in input {
-        if d.0.contains(&c) {
-            let mut segments_for_input = HashSet::new();
+        if d.0.contains(c) {
+            let mut segments_for_input = EnumSet::new();
             for n in numbers_with_len(d.0.len()) {
-                segments_for_input = segments_for_input
-                    .union(&segments_for_number(n))
-                    .cloned()
-                    .collect();
+                segments_for_input = segments_for_input.union(segments_for_number(n));
             }
 
-            segments = segments
-                .intersection(&segments_for_input)
-                .cloned()
-                .collect();
+            segments = segments.intersection(segments_for_input);
         }
     }
     segments
+}
+
+#[derive(PartialEq, Eq, Hash)]
+struct CacheKey {
+    chosen_keys: EnumSet<CodedSegment>,
+    chosen_values: EnumSet<Segment>,
 }
 
 fn solve_key(input: &Input, key: Key) -> Option<Key> {
@@ -183,8 +182,10 @@ fn solve_key(input: &Input, key: Key) -> Option<Key> {
 
             let mut new_key = key.clone();
             new_key.0.insert(c, s);
-            if let Some(k) = solve_key(input, new_key) {
-                return Some(k);
+            let res = solve_key(input, new_key);
+
+            if res.is_some() {
+                return res;
             }
         }
     }

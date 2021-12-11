@@ -1,6 +1,8 @@
 #![feature(generic_associated_types)]
 #![feature(type_alias_impl_trait)]
 
+use combine::eof;
+use combine::parser::char::spaces;
 use combine::stream::{easy, position};
 use prelude::*;
 use std::convert::Infallible;
@@ -203,4 +205,14 @@ impl<T, Sep> DerefMut for List<T, Sep> {
     fn deref_mut(&mut self) -> &mut [T] {
         self.0.deref_mut()
     }
+}
+
+pub fn parse_str<T: HasParser>(
+    input: &str,
+) -> std::result::Result<T, easy::Errors<char, &str, position::SourcePosition>> {
+    let (t, _): (T, _) = T::parser()
+        .skip(spaces())
+        .skip(eof())
+        .easy_parse(position::Stream::new(input))?;
+    Ok(t)
 }

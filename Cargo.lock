@@ -166,6 +166,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "308cc39be01b73d0d18f82a0e7b2a3df85245f84af96fdddc5d202d27e47b86a"
 
 [[package]]
+name = "multiset"
+version = "0.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce8738c9ddd350996cb8b8b718192851df960803764bcdaa3afb44a63b1ddb5c"
+
+[[package]]
 name = "nine"
 version = "0.1.0"
 dependencies = [
@@ -262,6 +268,15 @@ version = "0.1.0"
 dependencies = [
  "advent",
  "combine",
+]
+
+[[package]]
+name = "twelve"
+version = "0.1.0"
+dependencies = [
+ "advent",
+ "combine",
+ "multiset",
 ]
 
 [[package]]

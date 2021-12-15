@@ -132,6 +132,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "fifteen"
+version = "0.1.0"
+dependencies = [
+ "advent",
+ "combine",
+ "enum-iterator",
+]
+
+[[package]]
 name = "five"
 version = "0.1.0"
 dependencies = [
